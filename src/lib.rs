@@ -5,13 +5,14 @@ use simulation::Simulation;
 mod simulation;
 
 pub fn begin_simulation() {
-    let user_factory = UserFactory::new(1000).create_users(750).unwrap();
+    let mut user_factory = UserFactory::new(1000).create_users(750).unwrap();
+    let max_users = user_factory.get_users().len();
 
-    let sim = Simulation::new(user_factory);
-    let handles = sim.run();
+    let sim = Simulation::new();
 
-    for handle in handles {
-        handle.join().expect("worker panicked");
+    for event in sim.run(max_users) {
+        info!("{:?}", event);
+        user_factory.update_event(event);
     }
 
     info!("..done..");

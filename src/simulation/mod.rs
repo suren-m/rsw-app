@@ -1,4 +1,9 @@
-use std::{collections::HashMap, sync::mpsc, thread, time::Duration};
+use std::{
+    collections::HashMap,
+    sync::mpsc::{self, Receiver},
+    thread,
+    time::Duration,
+};
 
 use chrono::Utc;
 use log::info;
@@ -11,21 +16,17 @@ use rsw_lib::{
 use thread::JoinHandle;
 
 pub struct Simulation {
-    user_factory: UserFactory,
     active_users: HashMap<UserId, DeviceKind<Platform>>,
 }
 
 impl Simulation {
-    pub fn new(user_factory: UserFactory) -> Self {
+    pub fn new() -> Self {
         Simulation {
-            user_factory,
             active_users: HashMap::new(),
         }
     }
 
-    pub fn run(mut self) -> Vec<JoinHandle<()>> {
-        let max_limit = self.user_factory.get_users().len();
-
+    pub fn run(&self, max_limit: usize) -> Receiver<UserEvent> {
         let (tx, rx) = mpsc::channel();
         let tx2 = mpsc::Sender::clone(&tx);
 
@@ -74,14 +75,9 @@ impl Simulation {
             }
         });
 
-        let rx_handle = thread::spawn(move || {
-            for event in rx {
-                info!("{:?}", event);
-                self.user_factory.update_event(event);
-            }
-        });
+        rx
 
-        vec![tx1_handle, tx2_handle, rx_handle]
+        // vec![tx1_handle, tx2_handle, rx_handle]
     }
 }
 
