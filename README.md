@@ -7,6 +7,6 @@ ps aux | rg 'simulation'
 # or
 pidof simulation_engine
 
-pmap <pid> | less
+pmap <pid> | tail
 top -Hp <pid>
 ```
