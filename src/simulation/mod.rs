@@ -31,7 +31,7 @@ impl Simulation {
         let tx2 = mpsc::Sender::clone(&tx);
 
         // logins emitter
-        let tx1_handle = thread::spawn(move || {
+        thread::spawn(move || {
             let mut rng = rand::thread_rng();
             loop {
                 let rand_user_id = rng.gen_range(1..=max_limit);
@@ -54,7 +54,7 @@ impl Simulation {
         });
 
         // logouts emitter
-        let tx2_handle = thread::spawn(move || loop {
+        thread::spawn(move || loop {
             let mut rng = rand::thread_rng();
             loop {
                 let rand_user_id = rng.gen_range(1..=max_limit);
