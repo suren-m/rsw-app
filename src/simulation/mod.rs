@@ -1,9 +1,4 @@
-use std::{
-    collections::HashMap,
-    sync::mpsc::{self, Receiver},
-    thread,
-    time::Duration,
-};
+use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::mpsc::{self, Receiver}, thread, time::Duration};
 
 use chrono::Utc;
 use log::info;
@@ -16,13 +11,11 @@ use rsw_lib::{
 use thread::JoinHandle;
 
 pub struct Simulation {
-    active_users: HashMap<UserId, DeviceKind<Platform>>,
 }
 
 impl Simulation {
     pub fn new() -> Self {
         Simulation {
-            active_users: HashMap::new(),
         }
     }
 
