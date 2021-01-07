@@ -1,33 +1,18 @@
-use log::{debug, error, info, log_enabled, Level};
-use std::thread;
-use std::{sync::mpsc, time::Duration};
+use log::info;
+use rsw_lib::user::UserFactory;
+use simulation::Simulation;
 
-// set $RUST_LOG env variable accordingly https://docs.rs/env_logger/0.8.2/env_logger/
-pub fn run() {
-    init();
+mod simulation;
 
-    let (tx, rx) = mpsc::channel();
+pub fn begin_simulation() {
+    let user_factory = UserFactory::new(1000).create_users(750).unwrap();
 
-    let tx_handle = thread::spawn(move || {
-        for _ in 1..=5 {
-            let val = String::from("hi");
+    let sim = Simulation::new(user_factory);
+    let handles = sim.run();
 
-            tx.send(val).unwrap();
-        }
-    });
-
-    for received in rx {
-        info!("Got: {}", received);
-        thread::sleep(Duration::from_secs(2));
+    for handle in handles {
+        handle.join().expect("worker panicked");
     }
 
-    tx_handle.join().expect("transmitter panicked");
-
-    info!("..Done..");
-}
-
-fn init() {
-    use env_logger::Env;
-    env_logger::Builder::from_env(Env::default().default_filter_or("info"))
-        .init();
+    info!("..done..");
 }
